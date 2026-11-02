@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolatore TCO: Fiat Grande Panda Elettrica vs Benzina</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen pb-12">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white py-6 shadow-md mb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold flex items-center gap-2">
+                        <i data-lucide="calculator" class="w-8 h-8"></i>
+                        Confronto TCO: Fiat Grande Panda
+                    </h1>
+                    <p class="text-blue-100 text-sm mt-1">Elettrica (113 CV) vs 1.2 Benzina Pura (100 CV)</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Column: Inputs Form -->
+            <div class="lg:col-span-5 space-y-6">
+                
+                <!-- General Settings -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-900 border-b pb-2 mb-4 flex items-center gap-2">
+                        <i data-lucide="route" class="w-5 h-5 text-blue-600"></i> Parametri Generali
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700">Chilometri annui</label>
+                            <input type="number" id="annualKm" value="7000" step="500" class="mt-1 block w-full rounded-md border-slate-300 bg-slate-50 border p-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700">Periodo di analisi (Anni)</label>
+                            <input type="number" id="ownershipYears" value="15" min="1" max="25" class="mt-1 block w-full rounded-md border-slate-300 bg-slate-50 border p-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EV Settings -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-emerald-200 bg-emerald-50/20">
+                    <h2 class="text-lg font-bold text-emerald-900 border-b border-emerald-100 pb-2 mb-4 flex items-center gap-2">
+                        <i data-lucide="zap" class="w-5 h-5 text-emerald-600"></i> Grande Panda Elettrica (BEV)
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700">Listino (€)</label>
+                                <input type="number" id="evPrice" value="29800" class="mt-1 block w-full rounded-md border-slate-300 bg-white border p-2 text-sm font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700">Incentivi (€)</label>
+                                <input type="number" id="evIncentive" value="0" class="mt-1 block w-full rounded-md border-slate-300 bg-white border p-2 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700">Spese Extra (€)</label>
+                                <input type="number" id="evExtraCosts" value="0" title="Wallbox, cavi ricarica extra, impianti" class="mt-1 block w-full rounded-md border-slate-300 bg-white border p-2 text-sm">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700">Consumo (kWh/100 km)</label>
+                                <input type="number" id="evConsumption" value="16.8" step="0.1" class="mt-1 block w-full rounded-md border-slate-300 bg-white border p-2 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700">Ricarica Casa (%)</label>
+                                <input type="number" id="homeChargePct" value="100" min="0" max="100" class="mt-1 block w-full rounded-md border-slate-300 bg-white border p-2 text-sm font-semibold">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700">Costo Casa (€/kWh)</label>
+                                <input type="number" id="homeEnergyCost" value="0.25" step="0.01" class="mt-1 block w-full rounded-md border-slate-300 bg-white border p-2 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700">Costo Pubblico (€/kWh)</label>
+                                <input type="number" id="publicEnergyCost" value="0.65" step="0.01" class="mt-1 block w-full rounded-md border-slate-300 bg-white border p-2 text-sm">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2 border-t border-emerald-100 pt-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700">Bollo Base (€)</label>
+                                <input type="number" id="evTaxBase" value="106" class="mt-1 block w-full rounded-md border-slate-300 bg-white border p-1.5 text-xs" title="Bollo base stimato su ~41 kW a libretto">
+                                <span class="text-[10px] text-emerald-700 font-semibold block mt-0.5">0€ primi 5 anni (-80% poi)</span>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700">Tagliando (€)</label>
+                                <input type="number" id="evService" value="110" class="mt-1 block w-full rounded-md border-slate-300 bg-white border p-1.5 text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700">Assicurazione (€)</label>
+                                <input type="number" id="evInsurance" value="440" class="mt-1 block w-full rounded-md border-slate-300 bg-white border p-1.5 text-xs">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ICE Settings -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-amber-200 bg-amber-50/20">
+                    <h2 class="text-lg font-bold text-amber-900 border-b border-amber-100 pb-2 mb-4 flex items-center gap-2">
+                        <i data-lucide="fuel" class="w-5 h-5 text-amber-600"></i> Grande Panda 1.2 Benzina Pura
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700">Listino (€)</label>
+                                <input type="number" id="icePrice" value="22650" class="mt-1 block w-full rounded-md border-slate-300 bg-white border p-2 text-sm font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700">Sconto/Incentivo (€)</label>
+                                <input type="number" id="iceIncentive" value="0" class="mt-1 block w-full rounded-md border-slate-300 bg-white border p-2 text-sm">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700">Consumo (l/100 km)</label>
+                                <input type="number" id="iceConsumption" value="5.7" step="0.1" class="mt-1 block w-full rounded-md border-slate-300 bg-white border p-2 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700">Costo Carburante (€/l)</label>
+                                <input type="number" id="fuelCost" value="2.00" step="0.01" class="mt-1 block w-full rounded-md border-slate-300 bg-white border p-2 text-sm font-semibold">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2 border-t border-amber-100 pt-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700">Bollo Annuo (€)</label>
+                                <input type="number" id="iceTax" value="210" class="mt-1 block w-full rounded-md border-slate-300 bg-white border p-1.5 text-xs" title="Calcolato su 74 kW Euro 6">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700">Tagliando (€)</label>
+                                <input type="number" id="iceService" value="220" class="mt-1 block w-full rounded-md border-slate-300 bg-white border p-1.5 text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700">Assicurazione (€)</label>
+                                <input type="number" id="iceInsurance" value="520" class="mt-1 block w-full rounded-md border-slate-300 bg-white border p-1.5 text-xs">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Results & Charts -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- KPI Summary Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Punto di Pareggio</span>
+                        <div class="mt-2 flex items-baseline">
+                            <span id="breakevenYears" class="text-2xl sm:text-3xl font-extrabold text-blue-600">--</span>
+                            <span class="ml-1 text-sm text-slate-500">anni</span>
+                        </div>
+                        <p id="breakevenKm" class="text-xs text-slate-500 mt-1">~ -- km totali</p>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Risparmio al km</span>
+                        <div class="mt-2 flex items-baseline">
+                            <span id="savingsPerKm" class="text-2xl sm:text-3xl font-extrabold text-emerald-600">--</span>
+                            <span class="ml-1 text-sm text-slate-500">€/km</span>
+                        </div>
+                        <p id="annualFuelSavings" class="text-xs text-slate-500 mt-1">Risparmio annuo: -- €</p>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Risparmio CO₂ Totale</span>
+                        <div class="mt-2 flex items-baseline">
+                            <span id="co2Savings" class="text-2xl sm:text-3xl font-extrabold text-teal-600">--</span>
+                            <span class="ml-1 text-sm text-slate-500">Tonnellate</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Stima ciclo d'uso</p>
+                    </div>
+                </div>
+
+                <!-- Chart Box -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center justify-between">
+                        <span>Andamento Costi Cumulativi nel Tempo (TCO)</span>
+                        <span class="text-xs font-normal text-slate-500">Acquisto + Extra + Gestione</span>
+                    </h3>
+                    <div class="relative w-full h-72">
+                        <canvas id="tcoChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Comparison Table -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
+                        <h3 class="text-base font-bold text-slate-900">Riepilogo Costi a Fine Periodo</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-600">
+                            <thead class="bg-slate-100 text-xs uppercase font-semibold text-slate-700">
+                                <tr>
+                                    <th class="p-3">Voce di Costo</th>
+                                    <th class="p-3 text-emerald-700">Elettrica (BEV)</th>
+                                    <th class="p-3 text-amber-700">1.2 Benzina Pura</th>
+                                    <th class="p-3 text-right">Differenza</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200" id="tableBody">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+        let chart = null;
+
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => input.addEventListener('input', calculateTCO));
+
+        function getValues() {
+            return {
+                annualKm: parseFloat(document.getElementById('annualKm').value) || 0,
+                years: parseInt(document.getElementById('ownershipYears').value) || 1,
+                
+                // EV
+                evPrice: parseFloat(document.getElementById('evPrice').value) || 0,
+                evIncentive: parseFloat(document.getElementById('evIncentive').value) || 0,
+                evExtraCosts: parseFloat(document.getElementById('evExtraCosts').value) || 0,
+                evCons: parseFloat(document.getElementById('evConsumption').value) || 0,
+                homePct: (parseFloat(document.getElementById('homeChargePct').value) || 0) / 100,
+                homeCost: parseFloat(document.getElementById('homeEnergyCost').value) || 0,
+                publicCost: parseFloat(document.getElementById('publicEnergyCost').value) || 0,
+                evTaxBase: parseFloat(document.getElementById('evTaxBase').value) || 0,
+                evService: parseFloat(document.getElementById('evService').value) || 0,
+                evInsurance: parseFloat(document.getElementById('evInsurance').value) || 0,
+                
+                // ICE
+                icePrice: parseFloat(document.getElementById('icePrice').value) || 0,
+                iceIncentive: parseFloat(document.getElementById('iceIncentive').value) || 0,
+                iceCons: parseFloat(document.getElementById('iceConsumption').value) || 0,
+                fuelCost: parseFloat(document.getElementById('fuelCost').value) || 0,
+                iceTax: parseFloat(document.getElementById('iceTax').value) || 0,
+                iceService: parseFloat(document.getElementById('iceService').value) || 0,
+                iceInsurance: parseFloat(document.getElementById('iceInsurance').value) || 0,
+            };
+        }
+
+        function calculateTCO() {
+            const val = getValues();
+
+            // Costi iniziali Anno 0 (inclusi extra)
+            const evNetInitial = (val.evPrice - val.evIncentive) + val.evExtraCosts;
+            const iceNetInitial = val.icePrice - val.iceIncentive;
+
+            // Costi di percorrenza per km
+            const evEnergyCostPerKwh = (val.homePct * val.homeCost) + ((1 - val.homePct) * val.publicCost);
+            const evEnergyCostPerKm = (val.evCons / 100) * evEnergyCostPerKwh;
+            const iceFuelCostPerKm = (val.iceCons / 100) * val.fuelCost;
+
+            const evAnnualFuel = evEnergyCostPerKm * val.annualKm;
+            const iceAnnualFuel = iceFuelCostPerKm * val.annualKm;
+
+            const iceAnnualFixed = val.iceTax + val.iceService + val.iceInsurance;
+            const iceTotalAnnual = iceAnnualFuel + iceAnnualFixed;
+
+            const labels = ['Anno 0 (Acquisto)'];
+            const evData = [evNetInitial];
+            const iceData = [iceNetInitial];
+
+            let cumulativeEv = evNetInitial;
+            let cumulativeIce = iceNetInitial;
+            let breakevenYear = null;
+
+            let totalEvTax = 0;
+            let totalIceTax = 0;
+
+            for (let y = 1; y <= val.years; y++) {
+                labels.push(`Anno ${y}`);
+
+                // Bollo EV: 0€ nei primi 5 anni, poi ridotto dell'80% (si paga il 20% del valore base)
+                const currentEvTax = (y <= 5) ? 0 : (val.evTaxBase * 0.20);
+                totalEvTax += currentEvTax;
+                totalIceTax += val.iceTax;
+
+                const currentEvAnnualFixed = currentEvTax + val.evService + val.evInsurance;
+                const currentEvTotalAnnual = evAnnualFuel + currentEvAnnualFixed;
+
+                cumulativeEv += currentEvTotalAnnual;
+                cumulativeIce += iceTotalAnnual;
+
+                evData.push(cumulativeEv);
+                iceData.push(cumulativeIce);
+
+                if (breakevenYear === null && cumulativeEv <= cumulativeIce) {
+                    const prevEv = evData[y-1];
+                    const prevIce = iceData[y-1];
+                    const diffPrev = prevEv - prevIce;
+                    const diffCurr = cumulativeEv - cumulativeIce;
+                    const fraction = Math.abs(diffPrev) / (Math.abs(diffPrev) + Math.abs(diffCurr));
+                    breakevenYear = (y - 1) + fraction;
+                }
+            }
+
+            // Update Cards
+            const breakevenElem = document.getElementById('breakevenYears');
+            const breakevenKmElem = document.getElementById('breakevenKm');
+            
+            if (breakevenYear !== null) {
+                breakevenElem.textContent = breakevenYear.toFixed(1);
+                breakevenKmElem.textContent = `~ ${Math.round(breakevenYear * val.annualKm).toLocaleString('it-IT')} km totali`;
+            } else if (evNetInitial <= iceNetInitial) {
+                breakevenElem.textContent = "Immediato";
+                breakevenKmElem.textContent = "Conveniente fin dall'acquisto";
+            } else {
+                breakevenElem.textContent = "> " + val.years;
+                breakevenKmElem.textContent = "Oltre il periodo selezionato";
+            }
+
+            const kmSavings = iceFuelCostPerKm - evEnergyCostPerKm;
+            document.getElementById('savingsPerKm').textContent = kmSavings.toFixed(3);
+            
+            const evAverageAnnual = (cumulativeEv - evNetInitial) / val.years;
+            const annualSavings = (iceTotalAnnual - evAverageAnnual);
+            document.getElementById('annualFuelSavings').textContent = `Risparmio medio annuo: ${Math.round(annualSavings).toLocaleString('it-IT')} €`;
+
+            // CO2 estimation (130g CO2/km per Benzina vs ~40g CO2/km EV grid)
+            const co2SavedKg = (val.annualKm * val.years * (130 - 40)) / 1000000;
+            document.getElementById('co2Savings').textContent = co2SavedKg.toFixed(1);
+
+            // Render Table
+            renderTable(val, evNetInitial, iceNetInitial, evAnnualFuel * val.years, iceAnnualFuel * val.years, cumulativeEv, cumulativeIce, totalEvTax, totalIceTax);
+
+            // Render Chart
+            renderChart(labels, evData, iceData);
+        }
+
+        function renderTable(val, evInit, iceInit, totalEvFuel, totalIceFuel, totalEv, totalIce, totalEvTax, totalIceTax) {
+            const tbody = document.getElementById('tableBody');
+            
+            const totalEvFixed = totalEvTax + (val.evService + val.evInsurance) * val.years;
+            const totalIceFixed = totalIceTax + (val.iceService + val.iceInsurance) * val.years;
+            const diffTotal = totalEv - totalIce;
+
+            tbody.innerHTML = `
+                <tr>
+                    <td class="p-3 font-medium">Prezzo Netto Acquisto ${val.evExtraCosts > 0 ? '(incl. Extra ' + val.evExtraCosts.toLocaleString('it-IT') + ' €)' : ''}</td>
+                    <td class="p-3 text-emerald-700 font-semibold">${Math.round(evInit).toLocaleString('it-IT')} €</td>
+                    <td class="p-3 text-amber-700 font-semibold">${Math.round(iceInit).toLocaleString('it-IT')} €</td>
+                    <td class="p-3 text-right font-medium">${(evInit - iceInit > 0 ? '+' : '')}${Math.round(evInit - iceInit).toLocaleString('it-IT')} €</td>
+                </tr>
+                <tr>
+                    <td class="p-3 font-medium">Spesa Carburante / Energia (${val.years} anni)</td>
+                    <td class="p-3 text-emerald-700">${Math.round(totalEvFuel).toLocaleString('it-IT')} €</td>
+                    <td class="p-3 text-amber-700">${Math.round(totalIceFuel).toLocaleString('it-IT')} €</td>
+                    <td class="p-3 text-right text-emerald-600 font-semibold">${Math.round(totalEvFuel - totalIceFuel).toLocaleString('it-IT')} €</td>
+                </tr>
+                <tr>
+                    <td class="p-3 font-medium">Totale Bollo, Manutenzione & Assicurazione (${val.years} anni)</td>
+                    <td class="p-3 text-emerald-700">${Math.round(totalEvFixed).toLocaleString('it-IT')} €</td>
+                    <td class="p-3 text-amber-700">${Math.round(totalIceFixed).toLocaleString('it-IT')} €</td>
+                    <td class="p-3 text-right text-emerald-600 font-semibold">${Math.round(totalEvFixed - totalIceFixed).toLocaleString('it-IT')} €</td>
+                </tr>
+                <tr class="bg-slate-50 font-bold border-t-2 border-slate-300">
+                    <td class="p-3 text-slate-900">COSTO TOTALE DI POSSESSO (TCO)</td>
+                    <td class="p-3 text-emerald-800 text-base">${Math.round(totalEv).toLocaleString('it-IT')} €</td>
+                    <td class="p-3 text-amber-800 text-base">${Math.round(totalIce).toLocaleString('it-IT')} €</td>
+                    <td class="p-3 text-right ${diffTotal <= 0 ? 'text-emerald-600' : 'text-red-600'} text-base">
+                        ${diffTotal <= 0 ? 'Risparmi ' + Math.abs(Math.round(diffTotal)).toLocaleString('it-IT') + ' €' : 'Costa ' + Math.round(diffTotal).toLocaleString('it-IT') + ' € in più'}
+                    </td>
+                </tr>
+            `;
+        }
+
+        function renderChart(labels, evData, iceData) {
+            const ctx = document.getElementById('tcoChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Grande Panda BEV (29.800 €)',
+                            data: evData,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.1,
+                            fill: false
+                        },
+                        {
+                            label: 'Grande Panda 1.2 Benzina (22.650 €)',
+                            data: iceData,
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.1,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + Math.round(context.raw).toLocaleString('it-IT') + ' €';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('it-IT') + ' €';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        calculateTCO();
+    </script>
+</body>
+</html>
